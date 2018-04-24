@@ -1,3 +1,4 @@
+![](pictures/main.jpg)
 # ism-gateway
 A simple radio (434 MHz, ISM band) to USB gateway
 
