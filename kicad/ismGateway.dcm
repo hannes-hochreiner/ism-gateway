@@ -1,0 +1,34 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP LED_RGB
+D LED RGB 6 pins
+K led rgb diode
+$ENDCMP
+#
+$CMP LED_RGB_CREE
+D LED RGB 6 pins
+K led rgb diode
+F http://www.cree.com/led-components/media/documents/ds-CLX6F-FKC-1352.pdf
+$ENDCMP
+#
+$CMP NCP4687-SOT-89
+F http://www.onsemi.com/pub/Collateral/NCP4687-D.PDF
+$ENDCMP
+#
+$CMP RFM98
+F https://github.com/SeeedDocument/RFM95-98_LoRa_Module/blob/master/RFM95_96_97_98_DataSheet.pdf
+$ENDCMP
+#
+$CMP STM32L062K8T6
+F http://www.st.com/content/ccc/resource/technical/document/datasheet/2f/3d/50/ab/ac/19/44/c3/DM00108218.pdf/files/DM00108218.pdf/jcr:content/translations/en.DM00108218.pdf
+$ENDCMP
+#
+$CMP TLC59731
+F http://www.ti.com/lit/ds/symlink/tlc59731.pdf
+$ENDCMP
+#
+$CMP USBLC6-2
+F http://www.st.com/content/ccc/resource/technical/document/datasheet/06/1d/48/9c/6c/20/4a/b2/CD00050750.pdf/files/CD00050750.pdf/jcr:content/translations/en.CD00050750.pdf
+$ENDCMP
+#
+#End Doc Library
