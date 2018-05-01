@@ -24,5 +24,5 @@ Additionals nuts are used to hold the PCB in place.
 ### Learnings
   * plywood cases look quite ok
   * 0.1 mm kerb is ok for 2 mm plywood
-  * plywood is not always even
+  * plywood is not necessarily exactly the nominal thickness
   * a metal file would be good to smooth the metal rod cut-faces
