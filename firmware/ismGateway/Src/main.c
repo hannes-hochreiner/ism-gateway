@@ -146,22 +146,25 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    uint16_t flags;
-    RFM98_GetFlags(&rfm98, &flags);
+    while (LL_GPIO_IsInputPinSet(RFM_IO0_GPIO_Port, RFM_IO0_Pin) == 1) {
+      uint16_t flags;
+      RFM98_GetFlags(&rfm98, &flags);
 
-    if (flags & RFM98_FLAG_PAYLOAD_READY) {
-      colorTransmit = COLOR_BLUE;
+      if (flags & RFM98_FLAG_PAYLOAD_READY) {
+        colorTransmit = COLOR_BLUE;
+        SetColors(&led_calls, &colorSystem, &colorTransmit);
+        RFM98_ReadMessage(&rfm98, ReadData);
+        LL_mDelay(50);
+        colorTransmit = COLOR_GREEN;
+      } else if (flags & RFM98_FLAG_RSSI) {
+        colorTransmit = COLOR_GREEN;
+      } else {
+        colorTransmit = COLOR_YELLOW;
+      }
+
       SetColors(&led_calls, &colorSystem, &colorTransmit);
-      RFM98_ReadMessage(&rfm98, ReadData);
-      LL_mDelay(50);
-      colorTransmit = COLOR_GREEN;
-    } else if (flags & RFM98_FLAG_RSSI) {
-      colorTransmit = COLOR_GREEN;
-    } else {
-      colorTransmit = COLOR_YELLOW;
     }
 
-    SetColors(&led_calls, &colorSystem, &colorTransmit);
     __WFI();
   /* USER CODE END WHILE */
 
