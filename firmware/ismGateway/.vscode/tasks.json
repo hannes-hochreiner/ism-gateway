@@ -12,7 +12,10 @@
         "reveal": "never",
         "focus": false,
         "panel": "shared"
-      }
+      },
+      "dependsOn":[
+        "build"
+      ]
     },
     {
       "label": "remove openocd config",
@@ -24,6 +27,11 @@
         "focus": false,
         "panel": "shared"
       }
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "make"
     }
   ]
 }
