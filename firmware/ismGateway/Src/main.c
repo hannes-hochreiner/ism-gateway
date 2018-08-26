@@ -130,8 +130,7 @@ int main(void)
   RFM98_SetMode(&rfm98, &setMode);
 
   bitbang_calls_t led_calls = {led_delay, led_set_pin, led_reset_pin};
-  color_t colors[2] = {colorSystem, colorTransmit};
-  set_colors(led_calls, colors, 2);
+  SetColors(&led_calls, &colorSystem, &colorTransmit);
 
   LL_DBGMCU_EnableDBGSleepMode();
   LL_DBGMCU_EnableDBGStopMode();
@@ -152,16 +151,17 @@ int main(void)
 
     if (flags & RFM98_FLAG_PAYLOAD_READY) {
       colorTransmit = COLOR_BLUE;
+      SetColors(&led_calls, &colorSystem, &colorTransmit);
       RFM98_ReadMessage(&rfm98, ReadData);
+      LL_mDelay(50);
+      colorTransmit = COLOR_GREEN;
     } else if (flags & RFM98_FLAG_RSSI) {
       colorTransmit = COLOR_GREEN;
     } else {
       colorTransmit = COLOR_YELLOW;
     }
 
-    colors[0] = colorSystem;
-    colors[1] = colorTransmit;
-    set_colors(led_calls, colors, 2);
+    SetColors(&led_calls, &colorSystem, &colorTransmit);
     __WFI();
   /* USER CODE END WHILE */
 
@@ -275,6 +275,11 @@ void ReadData(const uint8_t* const data, uint8_t length) {
   } else {
     colorSystem = COLOR_YELLOW;
   }
+}
+
+void SetColors(const bitbang_calls_t* const calls, const color_t* const cSystem, const color_t* const cTransmit) {
+  color_t colors[2] = {*cSystem, *cTransmit};
+  set_colors(calls, colors, 2);
 }
 
 void TIMER_Callback() {

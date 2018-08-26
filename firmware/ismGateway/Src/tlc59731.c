@@ -3,7 +3,7 @@
 // 5 pulses: on, off, on/off, off, off
 // byte counter 0..length, bit counter 0..7, sequence counter 0..4
 // EOS = 3.5 - 5.5 t_cycle without rise
-void set_colors(bitbang_calls_t calls, color_t* colors, uint8_t length) {
+void set_colors(const bitbang_calls_t* const calls, const color_t* const colors, uint8_t length) {
   uint8_t colorCntr = 0;
 
   while (colorCntr < length) {
@@ -14,20 +14,20 @@ void set_colors(bitbang_calls_t calls, color_t* colors, uint8_t length) {
 
     while (byteCounter < 5) {
       if (byteCounter == 4) {
-        (*(calls.reset_pin))();
+        (*(calls->reset_pin))();
       } else if (seqCounter == 0) {
-        (*(calls.set_pin))();
+        (*(calls->set_pin))();
       } else if (seqCounter == 1 || seqCounter == 3 || seqCounter == 4) {
-        (*(calls.reset_pin))();
+        (*(calls->reset_pin))();
       } else {
         if ((data[byteCounter] << bitCounter) & 0x80) {
-          (*(calls.set_pin))();
+          (*(calls->set_pin))();
         } else {
-          (*(calls.reset_pin))();
+          (*(calls->reset_pin))();
         }
       }
 
-      (*(calls.delay))();
+      (*(calls->delay))();
       seqCounter++;
 
       if (seqCounter > 4) {

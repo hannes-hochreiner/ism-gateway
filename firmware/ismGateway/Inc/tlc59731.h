@@ -14,6 +14,6 @@ typedef struct {
   uint8_t b;
 } color_t;
 
-void set_colors(bitbang_calls_t calls, color_t* colors, uint8_t length);
+void set_colors(const bitbang_calls_t* const calls, const color_t* const colors, uint8_t length);
 
 #endif
