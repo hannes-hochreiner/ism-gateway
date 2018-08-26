@@ -35,6 +35,10 @@ These drivers are able to operate in blocking or interrupt mode, depending on th
 The LED driver is used in interrupt mode, currently.
 The RFM98 is polled to check for newly received messages.
 
+## Software
+Any program that is able to read messages from generic CDC-ACM devices should be fine.
+I wrote a small [monitoring program](https://github.com/hannes-hochreiner/usb-cdc-monitor) as a starting point.
+
 ### Ideas for improvement
   * the USB interrupts should be prioritized over the LED driver interrupts
   * interrupts should be used to check for received messages from the RFM98 module
