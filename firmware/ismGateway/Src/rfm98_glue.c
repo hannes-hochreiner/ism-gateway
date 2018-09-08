@@ -1,6 +1,6 @@
 #include "rfm98_glue.h"
 
-void RFM98Glue_Init(rfm98_t* const rfm98) {
+void RFM98Glue_Init(rfm9x_t* const rfm98) {
   rfm98->set_reset_pin = RFM98Glue_Set_Reset_Pin;
   rfm98->reset_reset_pin = RFM98Glue_Reset_Reset_Pin;
   rfm98->set_spi_nss_pin = RFM98Glue_Set_NSS_Pin;

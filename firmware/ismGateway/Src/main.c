@@ -49,6 +49,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32l0xx_hal.h"
+#include "aes.h"
 #include "spi.h"
 #include "tim.h"
 #include "usb_device.h"
@@ -120,14 +121,15 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM2_Init();
   MX_USB_DEVICE_Init();
+  MX_AES_Init();
   /* USER CODE BEGIN 2 */
-  rfm98_t rfm98;
+  rfm9x_t rfm98;
   RFM98Glue_Init(&rfm98);
-  RFM98_Init(&rfm98);
+  RFM9X_Init(&rfm98);
   uint8_t syncWord[] = {0x46, 0xA5, 0xE3};
-  RFM98_SetSyncWord(&rfm98, syncWord, 3);
-  rfm98_mode_t setMode = RFM98_MODE_RECEIVE;
-  RFM98_SetMode(&rfm98, &setMode);
+  RFM9X_SetSyncWord(&rfm98, syncWord, 3);
+  rfm9x_mode_t setMode = RFM9X_MODE_RECEIVE;
+  RFM9X_SetMode(&rfm98, &setMode);
 
   bitbang_calls_t led_calls = {led_delay, led_set_pin, led_reset_pin};
   SetColors(&led_calls, &colorSystem, &colorTransmit);
@@ -140,6 +142,10 @@ int main(void)
   // safety delay
   LL_mDelay(1000);
 
+  // test encrypt
+  uint8_t plain[] = {0xAA, 0x11, 0x12, 0x13, 0xAA, 0x11, 0x12, 0x13, 0xAA, 0x11, 0x12, 0x13, 0xAA, 0x11, 0x12, 0x13};
+  uint8_t encr[16];
+  HAL_CRYP_AESECB_Encrypt(&hcryp, plain, 16, encr, 1000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -148,15 +154,15 @@ int main(void)
   {
     while (LL_GPIO_IsInputPinSet(RFM_IO0_GPIO_Port, RFM_IO0_Pin) == 1) {
       uint16_t flags;
-      RFM98_GetFlags(&rfm98, &flags);
+      RFM9X_GetFlags(&rfm98, &flags);
 
-      if (flags & RFM98_FLAG_PAYLOAD_READY) {
+      if (flags & RFM9X_FLAG_PAYLOAD_READY) {
         colorTransmit = COLOR_BLUE;
         SetColors(&led_calls, &colorSystem, &colorTransmit);
-        RFM98_ReadMessage(&rfm98, ReadData);
+        RFM9X_ReadMessage(&rfm98, ReadData);
         LL_mDelay(50);
         colorTransmit = COLOR_GREEN;
-      } else if (flags & RFM98_FLAG_RSSI) {
+      } else if (flags & RFM9X_FLAG_RSSI) {
         colorTransmit = COLOR_GREEN;
       } else {
         colorTransmit = COLOR_YELLOW;

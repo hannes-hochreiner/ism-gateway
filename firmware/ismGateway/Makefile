@@ -79,6 +79,7 @@ Src/main.c \
 /home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_utils.c \
 /home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_tim_ex.c \
 /home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c.c \
+/home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_cryp.c \
 /home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_exti.c \
 /home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_gpio.c \
 /home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_rcc.c \
@@ -96,9 +97,10 @@ Src/spi.c \
 Src/tim.c \
 Src/gpio.c \
 Src/tlc59731.c \
-Src/rfm98.c \
 Src/rfm98_glue.c \
-/home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_spi.c
+/home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_spi.c \
+Src/aes.c \
+hoperf-rfm9x/src/rfm9x.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -156,6 +158,7 @@ AS_INCLUDES =
 # C includes
 C_INCLUDES =  \
 -IInc \
+-Ihoperf-rfm9x/inc \
 -I/home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Inc \
 -I/home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Inc/Legacy \
 -I/home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/CMSIS/Device/ST/STM32L0xx/Include \

@@ -2,9 +2,9 @@
 #define __rfm98_glue_h
 
 #include "main.h"
-#include "rfm98.h"
+#include "rfm9x.h"
 
-void RFM98Glue_Init(rfm98_t* const rfm98);
+void RFM98Glue_Init(rfm9x_t* const rfm98);
 void RFM98Glue_Set_Reset_Pin();
 void RFM98Glue_Reset_Reset_Pin();
 void RFM98Glue_Set_NSS_Pin();
