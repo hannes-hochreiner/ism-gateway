@@ -128,6 +128,8 @@ int main(void)
   RFM9X_Init(&rfm98);
   uint8_t syncWord[] = {0x46, 0xA5, 0xE3};
   RFM9X_SetSyncWord(&rfm98, syncWord, 3);
+  rfm9x_crc_autoclear_mode_t crcMode = RFM9X_CRC_AUTOCLEAR_OFF;
+  RFM9X_SetCrcAutoClearMode(&rfm98, &crcMode);
   rfm9x_mode_t setMode = RFM9X_MODE_RECEIVE;
   RFM9X_SetMode(&rfm98, &setMode);
 
