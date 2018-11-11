@@ -1,25 +1,51 @@
-extern crate libusb;
+extern crate libusb; // http://dcuddeback.github.io/libusb-rs/libusb/
+
+use std::time::Duration;
 
 fn main() {
+    let vendor_id = 0x0483;
+    let product_id = 0x5740;
     let version = libusb::version();
+    let encoding = [0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08];
+    let ACM_CTRL_DTR = 0x01;
+    let ACM_CTRL_RTS = 0x02;
+    let EP_IN_ADDR = 0x81;
+    let EP_OUT_ADDR = 0x01;
 
     println!("Using libusb version {}.{}.{}.{}", version.major(), version.minor(), version.micro(), version.nano());
     
     let context = libusb::Context::new().unwrap();
+    let devices_all = context.devices().unwrap();
+    let devices_relevant = devices_all.iter().filter(|dev| {
+        let device_desc = dev.device_descriptor().unwrap();
 
-    for device in context.devices().unwrap().iter() {
-        let device_desc = device.device_descriptor().unwrap();
-        let is_custom = if device_desc.vendor_id() == 0x0483 && device_desc.product_id() == 0x5740 {
-            true
-        } else {
-            false
-        };
+        device_desc.vendor_id() == vendor_id && device_desc.product_id() == product_id
+    });
 
-        println!("Bus {:03} Device {:03} ID {:04x}:{:04x} {}",
-            device.bus_number(),
-            device.address(),
-            device_desc.vendor_id(),
-            device_desc.product_id(),
-            is_custom);
+    for device in devices_relevant {
+        let con_desc = device.active_config_descriptor().unwrap();
+        let mut dev_hndl = device.open().unwrap();
+
+        for interface in con_desc.interfaces() {
+            if dev_hndl.kernel_driver_active(interface.number()).unwrap() {
+                dev_hndl.detach_kernel_driver(interface.number()).unwrap();
+            }
+
+            dev_hndl.claim_interface(interface.number()).unwrap();
+        }
+
+        let dummy: [u8; 0] = [0; 0];
+
+        dev_hndl.write_control(0x21, 0x20, ACM_CTRL_DTR | ACM_CTRL_RTS, 0, &dummy, Duration::from_secs(1)).unwrap();
+        dev_hndl.write_control(0x21, 0x20, 0, 0, &encoding, Duration::from_secs(1)).unwrap();
+
+        loop {
+            let mut buf: [u8; 64] = [0; 64];
+            let size = dev_hndl.read_bulk(EP_IN_ADDR, &mut buf, Duration::from_secs(1)).unwrap();
+            
+            let strs: Vec<String> = buf[..size].iter().map(|b| format!("{:02X}", b)).collect();
+
+            println!("data: {}", strs.connect(" "));
+        }
     }
 }
