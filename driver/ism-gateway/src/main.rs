@@ -41,11 +41,18 @@ fn main() {
 
         loop {
             let mut buf: [u8; 64] = [0; 64];
-            let size = dev_hndl.read_bulk(EP_IN_ADDR, &mut buf, Duration::from_secs(1)).unwrap();
             
-            let strs: Vec<String> = buf[..size].iter().map(|b| format!("{:02X}", b)).collect();
+            match dev_hndl.read_bulk(EP_IN_ADDR, &mut buf, Duration::from_secs(1)) {
+                Ok(size) => {
+                    let strs: Vec<String> = buf[..size].iter().map(|b| format!("{:02X}", b)).collect();
 
-            println!("data: {}", strs.connect(" "));
+                    println!("data: {}", strs.connect(" "));
+                },
+                Err(error) => {
+                    eprintln!("error: {}", error);
+                }
+            }
+            
         }
     }
 }
