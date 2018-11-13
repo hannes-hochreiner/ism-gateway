@@ -50,7 +50,7 @@ fn main() {
 
                     let rssi = -((buf[0] as u8) as f32) / 2.0;
                     let temp = -45.0 + 175.0 * ((((buf[1] as u16) << 8) + buf[2] as u16) as f32) / 16_f32.exp2();
-                    let hum = ((((buf[4] as u16) << 8) + buf[5] as u16) as f32) / 16_f32.exp2();
+                    let hum = ((((buf[4] as u16) << 8) + buf[5] as u16) as f32) / 16_f32.exp2() * 100.0;
                     println!("rssi: {} dB, temp: {} °C, hum: {} %", rssi, temp, hum);
                 },
                 Err(error) => {
