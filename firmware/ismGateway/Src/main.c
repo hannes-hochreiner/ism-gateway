@@ -64,6 +64,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+rfm9x_t rfm98;
 typedef enum {
   TIMER_PENDING,
   TIMER_DONE
@@ -123,15 +124,10 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_AES_Init();
   /* USER CODE BEGIN 2 */
-  rfm9x_t rfm98;
   RFM98Glue_Init(&rfm98);
   RFM9X_Init(&rfm98);
   uint8_t syncWord[] = {0x46, 0xA5, 0xE3};
   RFM9X_SetSyncWord(&rfm98, syncWord, 3);
-  rfm9x_crc_autoclear_mode_t crcMode = RFM9X_CRC_AUTOCLEAR_OFF;
-  RFM9X_SetCrcAutoClearMode(&rfm98, &crcMode);
-  rfm9x_freq_dev_t fdev = RFM9X_FREQ_DEV_50KHZ;
-  RFM9X_SetFreqDev(&rfm98, &fdev);
   rfm9x_mode_t setMode = RFM9X_MODE_RECEIVE;
   RFM9X_SetMode(&rfm98, &setMode);
 
@@ -156,7 +152,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    while (LL_GPIO_IsInputPinSet(RFM_IO0_GPIO_Port, RFM_IO0_Pin) == 1) {
+    // while (LL_GPIO_IsInputPinSet(RFM_IO0_GPIO_Port, RFM_IO0_Pin) == 1) {
       uint16_t flags;
       RFM9X_GetFlags(&rfm98, &flags);
 
@@ -168,14 +164,19 @@ int main(void)
         colorTransmit = COLOR_GREEN;
       } else if (flags & RFM9X_FLAG_RSSI) {
         colorTransmit = COLOR_GREEN;
+      } else if (flags & RFM9X_FLAG_PREAMBLE_DETECT) {
+        volatile uint8_t tmp = 5;
+      } else if (flags & RFM9X_FLAG_SYNC_ADDRESS_MATCH) {
+        volatile uint8_t tmp = 5;
       } else {
         colorTransmit = COLOR_YELLOW;
       }
 
       SetColors(&led_calls, &colorSystem, &colorTransmit);
-    }
+    // }
+    LL_mDelay(100);
 
-    __WFI();
+    // __WFI();
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -275,8 +276,13 @@ void led_delay() {
 void ReadData(const uint8_t* const data, uint8_t length) {
   uint8_t statusUSB = USBD_OK;
 
+  uint8_t msg[length + 1];
+  RFM9X_GetRSSIValue(&rfm98, msg);
+
+  strncpy((char*)(msg + 1), (const char*)data, length);
+
   if ((hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED) || (hUsbDeviceFS.dev_state == USBD_STATE_SUSPENDED)) {
-    statusUSB = CDC_Transmit_FS(data, length);
+    statusUSB = CDC_Transmit_FS(msg, length + 1);
   }
 
   if (statusUSB == USBD_OK) {
