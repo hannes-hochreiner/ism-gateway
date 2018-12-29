@@ -126,8 +126,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
   RFM98Glue_Init(&rfm98);
   RFM9X_Init(&rfm98);
+  RFM9X_Reset(&rfm98);
   uint8_t syncWord[] = {0x46, 0xA5, 0xE3};
   RFM9X_SetSyncWord(&rfm98, syncWord, 3);
+
   rfm9x_mode_t setMode = RFM9X_MODE_RECEIVE;
   RFM9X_SetMode(&rfm98, &setMode);
 
@@ -139,13 +141,6 @@ int main(void)
   LL_DBGMCU_EnableDBGStandbyMode();
 
   LL_PWR_SetPowerMode(LL_PWR_MODE_STANDBY);
-  // safety delay
-  LL_mDelay(1000);
-
-  // test encrypt
-  uint8_t plain[] = {0xAA, 0x11, 0x12, 0x13, 0xAA, 0x11, 0x12, 0x13, 0xAA, 0x11, 0x12, 0x13, 0xAA, 0x11, 0x12, 0x13};
-  uint8_t encr[16];
-  HAL_CRYP_AESECB_Encrypt(&hcryp, plain, 16, encr, 1000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -153,7 +148,7 @@ int main(void)
   while (1)
   {
     // while (LL_GPIO_IsInputPinSet(RFM_IO0_GPIO_Port, RFM_IO0_Pin) == 1) {
-      uint16_t flags;
+      rfm9x_flags_t flags;
       RFM9X_GetFlags(&rfm98, &flags);
 
       if (flags & RFM9X_FLAG_PAYLOAD_READY) {
@@ -277,7 +272,7 @@ void ReadData(const uint8_t* const data, uint8_t length) {
   uint8_t statusUSB = USBD_OK;
 
   uint8_t msg[length + 1];
-  RFM9X_GetRSSIValue(&rfm98, msg);
+  // RFM9X_GetRSSIValue(&rfm98, msg);
 
   strncpy((char*)(msg + 1), (const char*)data, length);
 
