@@ -272,9 +272,9 @@ void ReadData(const uint8_t* const data, uint8_t length) {
   uint8_t statusUSB = USBD_OK;
 
   uint8_t msg[length + 1];
-  // RFM9X_GetRSSIValue(&rfm98, msg);
+  RFM9X_GetRSSIValue(&rfm98, msg);
 
-  strncpy((char*)(msg + 1), (const char*)data, length);
+  memcpy((char*)(msg + 1), (const char*)data, length);
 
   if ((hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED) || (hUsbDeviceFS.dev_state == USBD_STATE_SUSPENDED)) {
     statusUSB = CDC_Transmit_FS(msg, length + 1);
