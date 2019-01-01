@@ -1,0 +1,24 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "get executable",
+      "type": "shell",
+      "command": "scp hc2:~/ism-gateway-driver/bld/ism-gateway-driver bld/",
+      "dependsOn": ["build remotely"]
+    },
+    {
+      "label": "build remotely",
+      "type": "shell",
+      "command": "ssh hc2 \"make -C ~/ism-gateway-driver\"",
+      "dependsOn": ["sync source"]
+    },
+    {
+      "label": "sync source",
+      "type": "shell",
+      "command": "rsync -arvz -e \"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" --progress . hc2:~/ism-gateway-driver"
+    }
+  ]
+}
