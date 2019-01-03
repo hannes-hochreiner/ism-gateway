@@ -1,5 +1,9 @@
 #include <iostream>
+#include <stdexcept>
 #include "usb_session.h"
+#include "aes_ecb.h"
+#include "message.h"
+#include "args.h"
 
 #define ACM_REQUEST_SET_CONTROL_LINE_STATE 0x22
 #define ACM_REQUEST_SET_LINE_CODING 0x20
@@ -10,6 +14,8 @@
 int main(int argc, char const *argv[])
 {
   try {
+    args args(argc, argv);
+
     uint16_t vendor_id = 0x0483;
     uint16_t product_id = 0x5740;
 
@@ -49,11 +55,28 @@ int main(int argc, char const *argv[])
     int buffer_size = 64;
     int transfer_size;
     unsigned char buffer_data[buffer_size];
+    aes_ecb aes(args.get_key());
 
     while (true) {
       try {
         dev.bulk_transfer(EP_IN_ADDR, buffer_data, buffer_size, &transfer_size, 1000);
-        std::cout << "data received " << transfer_size << " bytes\n";
+        std::cout << "received " << transfer_size << " bytes\n";
+
+        if (transfer_size % 4 != 1) {
+          throw std::runtime_error("inconsistent data length");
+        }
+
+        unsigned char buffer_decrypt_data[transfer_size - 1];
+
+        aes.decrypt((buffer_data + 1), buffer_decrypt_data, transfer_size - 1);
+
+        if (buffer_decrypt_data[0] == 1) {
+          message_0001_t* msg = (message_0001_t*)(buffer_decrypt_data);
+
+          std::cout << "{ rssi: " << (float)(buffer_data[0]) / 2 << ", type: " << msg->type << ", temperature: " << msg->temperature << ", humidity: " << msg->humidity << " }\n";
+        } else {
+          std::cout << "unknown message type received\n";
+        }
       } catch (const usb_exception& ex) {
         std::cerr << "usb exception: " << ex.what() << "\n";
       }
@@ -62,6 +85,7 @@ int main(int argc, char const *argv[])
   catch(const std::exception& e)
   {
     std::cerr << e.what() << '\n';
+    return 1;
   }  
 
   return 0;

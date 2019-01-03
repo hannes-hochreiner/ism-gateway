@@ -4,6 +4,16 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "build aes-ecb-test",
+      "type": "shell",
+      "command": "make bld/aes-ecb-test"
+    },
+    {
+      "label": "build args-test",
+      "type": "shell",
+      "command": "make bld/args-test"
+    },
+    {
       "label": "get executable",
       "type": "shell",
       "command": "scp hc2:~/ism-gateway-driver/bld/ism-gateway-driver bld/",

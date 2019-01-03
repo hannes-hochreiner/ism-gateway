@@ -5,10 +5,26 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "gdb",
+      "request": "launch",
+      "name": "debug aes-ecb locally",
+      "target": "bld/aes-ecb-test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "build aes-ecb-test"
+    },
+    {
+      "type": "gdb",
+      "request": "launch",
+      "name": "debug args locally",
+      "target": "bld/args-test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "build args-test"
+    },
+    {
       "name": "Debug",
       "type": "gdb",
       "request": "launch",
-      "target": "./test",
+      "target": "bld/ism-gateway-driver",
       "cwd": "${workspaceRoot}",
       "gdbpath": "gdb",
       "autorun": [
