@@ -1,7 +1,7 @@
 BUILD_DIR = bld/
 
 ism-gateway-driver: Makefile src/main.cpp src/usb_session.cpp src/usb_device.cpp src/usb_exception.cpp src/aes_ecb.cpp src/aes_exception.cpp src/args.cpp
-	g++ -g -Iinc -o ${BUILD_DIR}$@ $(filter %.cpp, $^) -lusb-1.0 -lcryptopp
+	g++ -g -Iinc -o ${BUILD_DIR}$@ $(filter %.cpp, $^) -lusb-1.0 -lcryptopp -lzmq
 
 ${BUILD_DIR}aes-ecb-test: Makefile src_test/gtest.cpp inc/aes_ecb.h src/aes_ecb.cpp inc/aes_exception.h src/aes_exception.cpp src_test/aes_ecb.test.cpp
 	g++ -g -Iinc -o $@ $(filter %.cpp, $^) -lcryptopp -lgtest

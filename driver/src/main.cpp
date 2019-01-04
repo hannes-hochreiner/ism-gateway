@@ -1,15 +1,4 @@
-#include <iostream>
-#include <stdexcept>
-#include "usb_session.h"
-#include "aes_ecb.h"
-#include "message.h"
-#include "args.h"
-
-#define ACM_REQUEST_SET_CONTROL_LINE_STATE 0x22
-#define ACM_REQUEST_SET_LINE_CODING 0x20
-#define ACM_CTRL_DTR 0x01
-#define ACM_CTRL_RTS 0x02
-#define EP_IN_ADDR 0x81
+#include "main.h"
 
 int main(int argc, char const *argv[])
 {
@@ -57,6 +46,11 @@ int main(int argc, char const *argv[])
     unsigned char buffer_data[buffer_size];
     aes_ecb aes(args.get_key());
 
+    zmq::context_t context(1);
+    zmq::socket_t publisher(context, ZMQ_PUB);
+
+    publisher.bind("ipc://sensor-net.ipc");
+
     while (true) {
       try {
         dev.bulk_transfer(EP_IN_ADDR, buffer_data, buffer_size, &transfer_size, 1000);
@@ -72,8 +66,13 @@ int main(int argc, char const *argv[])
 
         if (buffer_decrypt_data[0] == 1) {
           message_0001_t* msg = (message_0001_t*)(buffer_decrypt_data);
+          float rssi = (float)(buffer_data[0]) / 2;
 
-          std::cout << "{ rssi: " << (float)(buffer_data[0]) / 2 << ", type: " << msg->type << ", temperature: " << msg->temperature << ", humidity: " << msg->humidity << " }\n";
+          std::string msg_json = format_message_1(rssi, msg);
+          std::cout << msg_json << "\n";
+          zmq::message_t msg_zmq(msg_json.c_str(), msg_json.size());
+          
+          publisher.send(msg_zmq);
         } else {
           std::cout << "unknown message type received\n";
         }
@@ -89,4 +88,48 @@ int main(int argc, char const *argv[])
   }  
 
   return 0;
+}
+
+std::string format_message_1(const float& rssi, message_0001_t const *const msg) {
+  json j;
+
+  j["rssi"] = rssi;
+  j["timestamp"] = get_timestamp();
+  j["message"]["type"] = msg->type;
+  j["message"]["mcu_id"] = mcu_id_to_hex(msg->mcu_id_1, msg->mcu_id_2, msg->mcu_id_3);
+  j["message"]["message_index"] = msg->message_index;
+  j["message"]["sensor_id"] = sensor_id_to_hex(msg->sensor_id);
+  j["message"]["humidity"] = msg->humidity;
+  j["message"]["temperature"] = msg->temperature;
+
+  return j.dump();
+}
+
+std::string get_timestamp() {
+  time_t now;
+  time(&now);
+  char buf[sizeof("YYYY-MM-DDTHH:MM:SSZ")];
+  strftime(buf, sizeof(buf), "%FT%TZ", gmtime(&now));
+
+  return std::string(buf);
+}
+
+std::string sensor_id_to_hex(uint16_t sensor_id) {
+  std::ostringstream os;
+
+  os.width(4);
+  os.fill('0');
+  os << std::hex << std::uppercase << sensor_id;
+
+  return os.str();
+}
+
+std::string mcu_id_to_hex(uint32_t mcu_id_1, uint32_t mcu_id_2, uint32_t mcu_id_3) {
+  std::ostringstream os;
+
+  os.width(8);
+  os.fill('0');
+  os << std::hex << std::uppercase << mcu_id_3 << "-" << mcu_id_2 << "-" << mcu_id_1;
+
+  return os.str();
 }
