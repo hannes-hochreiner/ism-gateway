@@ -10,6 +10,12 @@ make
 
 ### 3rd party libraries
 
+#### Crypto++
+The [Crypto++ Library](https://cryptopp.com) is used for decrypting the messages from the sensors.
+```
+sudo aptitude install libcrypto++-dev
+```
+
 #### JSON for Modern C++
 [JSON for Modern C++](https://github.com/nlohmann/json) is used as stand-alone hpp-import.
 
