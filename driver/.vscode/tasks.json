@@ -26,9 +26,14 @@
       "dependsOn": ["sync source"]
     },
     {
+      "label": "build locally",
+      "type": "shell",
+      "command": "make"
+    },
+    {
       "label": "sync source",
       "type": "shell",
-      "command": "rsync -arvz -e \"ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null\" --progress . hc2:~/ism-gateway-driver"
+      "command": "make sync-source"
     }
   ]
 }

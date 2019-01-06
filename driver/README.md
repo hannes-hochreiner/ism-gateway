@@ -10,10 +10,20 @@ make
 
 ### 3rd party libraries
 
+#### libusb
+
+```
+sudo dnf install libusb-devel
+```
+
 #### Crypto++
 The [Crypto++ Library](https://cryptopp.com) is used for decrypting the messages from the sensors.
 ```
 sudo aptitude install libcrypto++-dev
+```
+or
+```
+sudo dnf install cryptopp-devel
 ```
 
 #### JSON for Modern C++

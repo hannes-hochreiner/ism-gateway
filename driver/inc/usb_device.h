@@ -23,13 +23,8 @@ public:
   void claim();
   void control_transfer(uint8_t bmRequestType, uint8_t bRequest, uint16_t wValue, uint16_t wIndex, unsigned char *data, uint16_t wLength, unsigned int timeout);
   void bulk_transfer(unsigned char endpoint, unsigned char *data, int length, int *transferred, unsigned int timeout);
+  void clear_halt(unsigned char endpoint);
+  void reset();
 };
 
-// private:
-//   CMySingleton() {}                                  // Private constructor
-//   ~CMySingleton() {}
-//   CMySingleton(const CMySingleton&);                 // Prevent copy-construction
-//   CMySingleton& operator=(const CMySingleton&);      // Prevent assignment
-// std:swap
-// move contructor
 #endif

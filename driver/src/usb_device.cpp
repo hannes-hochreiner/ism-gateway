@@ -77,7 +77,44 @@ void usb_device::control_transfer(uint8_t bmRequestType, uint8_t bRequest, uint1
 }
 
 void usb_device::bulk_transfer(unsigned char endpoint, unsigned char *data, int length, int *transferred, unsigned int timeout) {
-  if (libusb_bulk_transfer(this->_hndl, endpoint, data, length, transferred, timeout) != LIBUSB_SUCCESS) {
-    throw usb_exception("bulk transfer failed");
+  int res = libusb_bulk_transfer(this->_hndl, endpoint, data, length, transferred, timeout);
+
+  if (res >= 0) {
+    return;
+  }
+
+  switch (res) {
+    case LIBUSB_ERROR_TIMEOUT: throw usb_exception("bulk transfer failed: timeout");
+    case LIBUSB_ERROR_PIPE: throw usb_exception_pipe();
+    case LIBUSB_ERROR_NO_DEVICE: throw usb_exception("bulk transfer failed: device disconnected");
+    case LIBUSB_ERROR_OVERFLOW: throw usb_exception("bulk transfer failed: overflow");
+    default: throw usb_exception("bulk transfer failed");
+  }
+}
+
+void usb_device::clear_halt(unsigned char endpoint) {
+  int res = libusb_clear_halt(this->_hndl, endpoint);
+
+  if (res >= 0) {
+    return;
+  }
+
+  switch (res) {
+    case LIBUSB_ERROR_NOT_FOUND: throw usb_exception("clear halt failed: endpoint not found");
+    case LIBUSB_ERROR_NO_DEVICE: throw usb_exception("clear halt failed: device disconnected");
+    default: throw usb_exception("clear halt failed");
+  }
+}
+
+void usb_device::reset() {
+  int res = libusb_reset_device(this->_hndl);
+
+  if (res >= 0) {
+    return;
+  }
+
+  switch (res) {
+    case LIBUSB_ERROR_NO_DEVICE: throw usb_exception("reset failed: device disconnected");
+    default: throw usb_exception("reset failed");
   }
 }

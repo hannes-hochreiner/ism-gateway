@@ -12,4 +12,9 @@ public:
   virtual const char* what() const throw();
 };
 
+class usb_exception_pipe: public usb_exception {
+public:
+  usb_exception_pipe();
+};
+
 #endif

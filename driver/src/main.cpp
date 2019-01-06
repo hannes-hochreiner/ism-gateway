@@ -49,7 +49,7 @@ int main(int argc, char const *argv[])
     zmq::context_t context(1);
     zmq::socket_t publisher(context, ZMQ_PUB);
 
-    publisher.bind("ipc://sensor-net.ipc");
+    publisher.bind("tcp://*:5555");
 
     while (true) {
       try {
@@ -76,6 +76,9 @@ int main(int argc, char const *argv[])
         } else {
           std::cout << "unknown message type received\n";
         }
+      } catch (const usb_exception_pipe& ex) {
+        std::cerr << "usb exception: " << ex.what() << "\n";
+        dev.clear_halt(EP_IN_ADDR);
       } catch (const usb_exception& ex) {
         std::cerr << "usb exception: " << ex.what() << "\n";
       }

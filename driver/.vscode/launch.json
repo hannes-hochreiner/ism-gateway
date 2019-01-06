@@ -7,6 +7,14 @@
     {
       "type": "gdb",
       "request": "launch",
+      "name": "debug locally",
+      "target": "bld/ism-gateway-driver",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "build locally"
+    },
+    {
+      "type": "gdb",
+      "request": "launch",
       "name": "debug aes-ecb locally",
       "target": "bld/aes-ecb-test",
       "cwd": "${workspaceRoot}",
