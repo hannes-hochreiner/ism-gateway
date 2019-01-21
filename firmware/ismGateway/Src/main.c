@@ -57,14 +57,13 @@
 
 /* USER CODE BEGIN Includes */
 #include "usbd_cdc_if.h"
-#include "rfm98_glue.h"
+#include "rfm9x_glue.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-rfm9x_t rfm98;
 typedef enum {
   TIMER_PENDING,
   TIMER_DONE
@@ -124,14 +123,7 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_AES_Init();
   /* USER CODE BEGIN 2 */
-  RFM98Glue_Init(&rfm98);
-  RFM9X_Init(&rfm98);
-  RFM9X_Reset(&rfm98);
-  uint8_t syncWord[] = {0x46, 0xA5, 0xE3};
-  RFM9X_SetSyncWord(&rfm98, syncWord, 3);
-
-  rfm9x_mode_t setMode = RFM9X_MODE_RECEIVE;
-  RFM9X_SetMode(&rfm98, &setMode);
+  rfm9x_g_init();
 
   bitbang_calls_t led_calls = {led_delay, led_set_pin, led_reset_pin};
   SetColors(&led_calls, &colorSystem, &colorTransmit);
@@ -141,6 +133,8 @@ int main(void)
   LL_DBGMCU_EnableDBGStandbyMode();
 
   LL_PWR_SetPowerMode(LL_PWR_MODE_STANDBY);
+
+  rfm9x_g_start_reception_mode();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -149,20 +143,14 @@ int main(void)
   {
     // while (LL_GPIO_IsInputPinSet(RFM_IO0_GPIO_Port, RFM_IO0_Pin) == 1) {
       rfm9x_flags_t flags;
-      RFM9X_GetFlags(&rfm98, &flags);
+      rfm9x_g_get_flags(&flags);
 
-      if (flags & RFM9X_FLAG_PAYLOAD_READY) {
+      if (flags & RFM9X_FLAG_RX_DONE) {
         colorTransmit = COLOR_BLUE;
         SetColors(&led_calls, &colorSystem, &colorTransmit);
-        RFM9X_ReadMessage(&rfm98, ReadData);
+        rfm9x_g_get_message(ReadData);
         LL_mDelay(50);
         colorTransmit = COLOR_GREEN;
-      } else if (flags & RFM9X_FLAG_RSSI) {
-        colorTransmit = COLOR_GREEN;
-      } else if (flags & RFM9X_FLAG_PREAMBLE_DETECT) {
-        volatile uint8_t tmp = 5;
-      } else if (flags & RFM9X_FLAG_SYNC_ADDRESS_MATCH) {
-        volatile uint8_t tmp = 5;
       } else {
         colorTransmit = COLOR_YELLOW;
       }
@@ -268,13 +256,13 @@ void led_delay() {
   LL_TIM_DisableIT_UPDATE(TIM2);
 }
 
-void ReadData(const uint8_t* const data, uint8_t length) {
+void ReadData(int16_t rssi, const uint8_t* const data, uint8_t length) {
   uint8_t statusUSB = USBD_OK;
 
-  uint8_t msg[length + 1];
-  RFM9X_GetRSSIValue(&rfm98, msg);
-
-  memcpy((char*)(msg + 1), (const char*)data, length);
+  uint8_t msg[length + 2];
+  
+  memcpy((char*)(msg), (const char*)rssi, 2);
+  memcpy((char*)(msg + 2), (const char*)data, length);
 
   if ((hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED) || (hUsbDeviceFS.dev_state == USBD_STATE_SUSPENDED)) {
     statusUSB = CDC_Transmit_FS(msg, length + 1);

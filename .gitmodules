@@ -1,3 +1,0 @@
-[submodule "firmware/ismGateway/hoperf-rfm9x"]
-	path = firmware/ismGateway/hoperf-rfm9x
-	url = git@github.com:hannes-hochreiner/hoperf-rfm9x.git

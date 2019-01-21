@@ -94,7 +94,7 @@ void TIMER_Callback();
 void led_delay();
 void led_set_pin();
 void led_reset_pin();
-void ReadData(const uint8_t* const data, uint8_t length);
+void ReadData(int16_t rssi, const uint8_t* const data, uint8_t length);
 void SetColors(const bitbang_calls_t* const calls, const color_t* const, const color_t* const);
 void EXTI_Callback();
 /* USER CODE END Private defines */

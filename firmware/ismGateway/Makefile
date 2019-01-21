@@ -100,7 +100,8 @@ Src/tlc59731.c \
 Src/rfm98_glue.c \
 /home/hannes/STM32Cube/Repository/STM32Cube_FW_L0_V1.10.0/Drivers/STM32L0xx_HAL_Driver/Src/stm32l0xx_ll_spi.c \
 Src/aes.c \
-hoperf-rfm9x/src/rfm9x.c
+Src/rfm9x_glue.c \
+Src/rfm9x_lora.c
 
 # ASM sources
 ASM_SOURCES =  \
