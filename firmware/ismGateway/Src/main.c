@@ -261,7 +261,7 @@ void ReadData(int16_t rssi, const uint8_t* const data, uint8_t length) {
 
   uint8_t msg[length + 2];
   
-  memcpy((char*)(msg), (const char*)rssi, 2);
+  memcpy((char*)(msg), (const char*)&rssi, 2);
   memcpy((char*)(msg + 2), (const char*)data, length);
 
   if ((hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED) || (hUsbDeviceFS.dev_state == USBD_STATE_SUSPENDED)) {
