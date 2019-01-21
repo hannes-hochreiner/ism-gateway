@@ -45,6 +45,8 @@ void rfm9x_g_start_reception_mode() {
 
 void rfm9x_g_get_message(read_func callback) {
   RFM9X_ReadMessage(&rfm98, callback);
+  rfm9x_flags_t flags = RFM9X_FLAG_ALL;
+  RFM9X_ResetFlags(&rfm98, &flags);
 }
 
 void rfm9x_g_get_flags(const rfm9x_flags_t* const flags) {

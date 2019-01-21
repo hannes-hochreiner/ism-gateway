@@ -56,25 +56,36 @@ int main(int argc, char const *argv[])
         dev.bulk_transfer(EP_IN_ADDR, buffer_data, buffer_size, &transfer_size, 1000);
         std::cout << "received " << transfer_size << " bytes\n";
 
-        if (transfer_size % 4 != 1) {
-          throw std::runtime_error("inconsistent data length");
-        }
+        int16_t rssi;
 
-        unsigned char buffer_decrypt_data[transfer_size - 1];
+        memcpy((void *)&rssi, (void *)buffer_data, 2);
 
-        aes.decrypt((buffer_data + 1), buffer_decrypt_data, transfer_size - 1);
+        if (transfer_size % 4 == 2) {
+          unsigned char buffer_decrypt_data[transfer_size - 2];
 
-        if (buffer_decrypt_data[0] == 1) {
-          message_0001_t* msg = (message_0001_t*)(buffer_decrypt_data);
-          float rssi = (float)(buffer_data[0]) / 2;
+          aes.decrypt((buffer_data + 2), buffer_decrypt_data, transfer_size - 2);
 
-          std::string msg_json = format_message_1(rssi, msg);
-          std::cout << msg_json << "\n";
-          zmq::message_t msg_zmq(msg_json.c_str(), msg_json.size());
-          
-          publisher.send(msg_zmq);
+          if (buffer_decrypt_data[0] == 1) {
+            message_0001_t* msg = (message_0001_t*)(buffer_decrypt_data);
+
+            std::string msg_json = format_message_1(rssi, msg);
+            std::cout << msg_json << "\n";
+            zmq::message_t msg_zmq(msg_json.c_str(), msg_json.size());
+
+            publisher.send(msg_zmq);
+          } else if (buffer_decrypt_data[0] == 2) {
+            message_0002_t* msg = (message_0002_t*)(buffer_decrypt_data);
+
+            std::string msg_json = format_message_2(rssi, msg);
+            std::cout << msg_json << "\n";
+            zmq::message_t msg_zmq(msg_json.c_str(), msg_json.size());
+
+            publisher.send(msg_zmq);
+          } else {
+            std::cout << "unknown message type received\n";
+          }
         } else {
-          std::cout << "unknown message type received\n";
+          throw std::runtime_error("unexpected data length");
         }
       } catch (const usb_exception_pipe& ex) {
         std::cerr << "usb exception: " << ex.what() << "\n";
@@ -93,7 +104,7 @@ int main(int argc, char const *argv[])
   return 0;
 }
 
-std::string format_message_1(const float& rssi, message_0001_t const *const msg) {
+std::string format_message_1(const int16_t& rssi, message_0001_t const *const msg) {
   json j;
 
   j["rssi"] = rssi;
@@ -104,6 +115,22 @@ std::string format_message_1(const float& rssi, message_0001_t const *const msg)
   j["message"]["sensor_id"] = sensor_id_to_hex(msg->sensor_id);
   j["message"]["humidity"] = msg->humidity;
   j["message"]["temperature"] = msg->temperature;
+
+  return j.dump();
+}
+
+std::string format_message_2(const int16_t& rssi, message_0002_t const *const msg) {
+  json j;
+
+  j["rssi"] = rssi;
+  j["timestamp"] = get_timestamp();
+  j["message"]["type"] = msg->type;
+  j["message"]["mcu_id"] = mcu_id_to_hex(msg->mcu_id_1, msg->mcu_id_2, msg->mcu_id_3);
+  j["message"]["message_index"] = msg->message_index;
+  j["message"]["sensor_id"] = sensor_id_to_hex(msg->sensor_id);
+  j["message"]["humidity"] = msg->humidity;
+  j["message"]["temperature"] = msg->temperature;
+  j["message"]["pressure"] = msg->pressure;
 
   return j.dump();
 }
