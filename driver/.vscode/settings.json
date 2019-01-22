@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "cstring": "cpp",
-    "stdexcept": "cpp"
+    "stdexcept": "cpp",
+    "*.tcc": "cpp"
   }
 }

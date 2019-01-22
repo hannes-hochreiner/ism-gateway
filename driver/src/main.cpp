@@ -85,7 +85,7 @@ int main(int argc, char const *argv[])
             std::cout << "unknown message type received\n";
           }
         } else {
-          throw std::runtime_error("unexpected data length");
+          std::cout << "unexpected data length " << transfer_size << "\n";
         }
       } catch (const usb_exception_pipe& ex) {
         std::cerr << "usb exception: " << ex.what() << "\n";
