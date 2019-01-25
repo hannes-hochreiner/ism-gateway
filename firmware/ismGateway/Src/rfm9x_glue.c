@@ -1,18 +1,18 @@
 #include "rfm9x_glue.h"
 
-volatile static rfm9x_t rfm98;
-
 void _rfm9x_g_set_reset_pin();
 void _rfm9x_g_reset_reset_pin();
 void _rfm9x_g_delay(uint16_t millisec);
 void _rfm9x_g_spi_transfer(uint8_t* const data, uint16_t length);
 
-void rfm9x_g_init() {
-  rfm98.set_reset_pin = _rfm9x_g_set_reset_pin;
-  rfm98.reset_reset_pin = _rfm9x_g_reset_reset_pin;
-  rfm98.delay = _rfm9x_g_delay;
-  rfm98.spi_transfer = _rfm9x_g_spi_transfer;
+const static rfm9x_t rfm98 = {
+  .set_reset_pin = _rfm9x_g_set_reset_pin,
+  .reset_reset_pin = _rfm9x_g_reset_reset_pin,
+  .delay = _rfm9x_g_delay,
+  .spi_transfer = _rfm9x_g_spi_transfer
+};
 
+void rfm9x_g_init() {
   LL_GPIO_SetOutputPin(SPI1_NSS_GPIO_Port, SPI1_NSS_Pin);
   LL_SPI_Enable(SPI1);
 
@@ -49,8 +49,12 @@ void rfm9x_g_get_message(read_func callback) {
   RFM9X_ResetFlags(&rfm98, &flags);
 }
 
-void rfm9x_g_get_flags(const rfm9x_flags_t* const flags) {
+void rfm9x_g_get_flags(rfm9x_flags_t* const flags) {
   RFM9X_GetFlags(&rfm98, flags);
+}
+
+void rfm9x_g_reset_flags(const rfm9x_flags_t* const flags) {
+  RFM9X_ResetFlags(&rfm98, flags);
 }
 
 void rfm9x_g_send_message(uint8_t* data, uint8_t length) {
@@ -71,7 +75,7 @@ void rfm9x_g_send_message(uint8_t* data, uint8_t length) {
          ((mode & 0x07) != RFM9X_MODE_STANDBY)) {
     RFM9X_GetMode(&rfm98, &mode);
     RFM9X_GetFlags(&rfm98, &flags);
-    delay(25);
+    LL_mDelay(25);
   }
 
   RFM9X_ResetFlags(&rfm98, &flags_all);

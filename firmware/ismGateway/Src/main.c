@@ -134,6 +134,8 @@ int main(void)
 
   LL_PWR_SetPowerMode(LL_PWR_MODE_STANDBY);
 
+  rfm9x_flags_t flags;
+  const rfm9x_flags_t flags_all = RFM9X_FLAG_ALL;
   rfm9x_g_start_reception_mode();
   /* USER CODE END 2 */
 
@@ -142,19 +144,19 @@ int main(void)
   while (1)
   {
     // while (LL_GPIO_IsInputPinSet(RFM_IO0_GPIO_Port, RFM_IO0_Pin) == 1) {
-      rfm9x_flags_t flags;
       rfm9x_g_get_flags(&flags);
 
-      if (flags & RFM9X_FLAG_RX_DONE) {
+      if ((flags & RFM9X_FLAG_RX_DONE) && !(flags & RFM9X_FLAG_PAYLOAD_CRC_ERROR)) {
+        rfm9x_g_get_message(ReadData);
         colorTransmit = COLOR_BLUE;
         SetColors(&led_calls, &colorSystem, &colorTransmit);
-        rfm9x_g_get_message(ReadData);
         LL_mDelay(50);
         colorTransmit = COLOR_GREEN;
       } else {
         colorTransmit = COLOR_YELLOW;
       }
 
+      rfm9x_g_reset_flags(&flags_all);
       SetColors(&led_calls, &colorSystem, &colorTransmit);
     // }
     LL_mDelay(100);
